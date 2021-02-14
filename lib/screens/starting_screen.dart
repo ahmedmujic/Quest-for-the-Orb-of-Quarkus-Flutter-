@@ -3,7 +3,69 @@ import 'package:OrbOfQuarkus/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class StartingScreen extends StatelessWidget {
+//  Provider.of<CurrentGame>(context, listen: false)
+//                         .startGame();
+//                     Navigator.of(context).pushNamed(MainScreen.routeName);
+class StartingScreen extends StatefulWidget {
+  @override
+  _StartingScreenState createState() => _StartingScreenState();
+}
+
+class _StartingScreenState extends State<StartingScreen> {
+  final myController = TextEditingController();
+  String _heroName;
+  @override
+  void initState() {
+    super.initState();
+
+    myController.addListener(_printLatestValue);
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the widget tree.
+    // This also removes the _printLatestValue listener.
+    myController.dispose();
+    super.dispose();
+  }
+
+  _printLatestValue() {
+    print("Second text field: ${myController.text}");
+  }
+
+  getAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Choose your hero name"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextField(
+                  controller: myController,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Yes'),
+              onPressed: () {
+                Provider.of<CurrentGame>(context, listen: false)
+                    .startGame(myController.text)
+                    .then((value) =>
+                        Navigator.of(context).pushNamed(MainScreen.routeName));
+                //Navigator.of(context).pushNamed(MainScreen.routeName);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +101,7 @@ class StartingScreen extends StatelessWidget {
               Container(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed(MainScreen.routeName);
+                    getAlert(context);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(10),
