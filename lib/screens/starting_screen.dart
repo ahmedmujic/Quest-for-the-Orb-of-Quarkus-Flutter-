@@ -1,12 +1,14 @@
 import 'package:OrbOfQuarkus/providers/game.dart';
 import 'package:OrbOfQuarkus/screens/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 //  Provider.of<CurrentGame>(context, listen: false)
 //                         .startGame();
 //                     Navigator.of(context).pushNamed(MainScreen.routeName);
 class StartingScreen extends StatefulWidget {
+  static const routeName = "/";
   @override
   _StartingScreenState createState() => _StartingScreenState();
 }
@@ -17,7 +19,12 @@ class _StartingScreenState extends State<StartingScreen> {
   @override
   void initState() {
     super.initState();
-
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     myController.addListener(_printLatestValue);
   }
 
@@ -51,7 +58,7 @@ class _StartingScreenState extends State<StartingScreen> {
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text('Yes'),
+              child: Text('Go'),
               onPressed: () {
                 Provider.of<CurrentGame>(context, listen: false)
                     .startGame(myController.text)

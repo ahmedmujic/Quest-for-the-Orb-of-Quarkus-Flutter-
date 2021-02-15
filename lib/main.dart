@@ -1,6 +1,6 @@
 import 'package:OrbOfQuarkus/providers/dungeon.dart';
 import 'package:OrbOfQuarkus/providers/game.dart';
-import 'package:OrbOfQuarkus/providers/player.dart';
+
 import 'package:OrbOfQuarkus/screens/fight_screen.dart';
 import 'package:OrbOfQuarkus/screens/inventory.dart';
 import 'package:OrbOfQuarkus/screens/main_screen.dart';
@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CurrentGame()),
-        ChangeNotifierProvider(create: (_) => CurrentPlayer()),
         ChangeNotifierProvider(create: (_) => CurrentDungeon())
       ],
       child: MaterialApp(
@@ -29,8 +28,9 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.orange,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: StartingScreen(),
+        initialRoute: "/",
         routes: {
+          "/": (ctx) => StartingScreen(),
           MainScreen.routeName: (ctx) => MainScreen(),
           InventoryScreen.routeName: (ctx) => InventoryScreen(),
           PrefightScreen.routeName: (ctx) => PrefightScreen(),

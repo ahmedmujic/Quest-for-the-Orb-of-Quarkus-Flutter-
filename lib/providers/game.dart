@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:OrbOfQuarkus/models/Inventory.dart';
 import 'package:OrbOfQuarkus/models/items.dart';
 import 'package:OrbOfQuarkus/models/weapons.dart';
-import 'package:OrbOfQuarkus/providers/player.dart';
+import 'package:OrbOfQuarkus/models/player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -89,7 +89,6 @@ class CurrentGame with ChangeNotifier {
         getPlayerByGameId();
       } else if (win == false) {
         this.endGame = true;
-        throw ("kraj igre");
       }
     } catch (error) {
       print(error);

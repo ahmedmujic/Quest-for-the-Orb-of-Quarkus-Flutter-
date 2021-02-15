@@ -1,4 +1,5 @@
 import 'package:OrbOfQuarkus/providers/dungeon.dart';
+import 'package:OrbOfQuarkus/providers/game.dart';
 import 'package:OrbOfQuarkus/screens/prefight_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,16 +24,53 @@ class MissionChooser extends StatelessWidget {
     );
   }
 
+  void errorAlert({String title, String text, BuildContext context}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(text),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(dungeonIndex);
+    final currentGame = Provider.of<CurrentGame>(context, listen: false);
     final dungeon =
         Provider.of<CurrentDungeon>(context, listen: false).currentDungeon;
     return InkWell(
       onTap: () {
-        dungeonIndex == dungeon.id
-            ? Navigator.of(context).pushNamed(PrefightScreen.routeName)
-            : null;
+        if (dungeonIndex == dungeon.id && currentGame.primaryWeaponId != null) {
+          Navigator.of(context).pushNamed(PrefightScreen.routeName);
+        } else if (currentGame.primaryWeaponId == null) {
+          errorAlert(
+              title: "ERROR!",
+              text: "Please choose ypur primary weapon from inventory!",
+              context: context);
+        } else if (dungeonIndex != dungeon.id) {
+          errorAlert(
+              title: "ERROR!",
+              text: "This dungeon is not available!",
+              context: context);
+        }
       },
       child: Container(
         alignment: Alignment.topCenter,

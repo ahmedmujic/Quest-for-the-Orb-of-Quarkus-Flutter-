@@ -34,36 +34,43 @@ class InventoryItem extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Please confirm your choice!"),
+          title: Text(
+              item.quantity != 0 ? "Please confirm your choice!" : "Error!"),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text("Do you want to heal hero with ${item.name}?"),
+                Text(item.quantity != 0
+                    ? "Do you want to heal hero with ${item.name}?"
+                    : "You dont have this item in your invenotry!"),
               ],
             ),
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text('Yes'),
+              child: Text(item.quantity != 0 ? 'Yes' : "OK"),
               onPressed: () {
-                if (item is HealingPotion) {
-                  print("pogodio sam ga");
-                  Provider.of<CurrentGame>(context)
-                      .healPlayerByPlayerIdHealId(healId: item.id);
-                } else if (item is PowerUps) {
-                  Provider.of<CurrentGame>(context)
-                      .powerPlayerByPlayerIdPowerID(powerId: item.id);
+                if (item.quantity != 0) {
+                  if (item is HealingPotion) {
+                    print("pogodio sam ga");
+                    Provider.of<CurrentGame>(context)
+                        .healPlayerByPlayerIdHealId(healId: item.id);
+                  } else if (item is PowerUps) {
+                    Provider.of<CurrentGame>(context)
+                        .powerPlayerByPlayerIdPowerID(powerId: item.id);
+                  }
                 }
 
                 Navigator.of(context).pop();
               },
             ),
-            FlatButton(
-              child: Text('No'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
+            item.quantity != 0
+                ? FlatButton(
+                    child: Text('No'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                : Text(""),
           ],
         );
       },

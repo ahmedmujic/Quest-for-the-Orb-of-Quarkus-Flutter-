@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:OrbOfQuarkus/models/monster.dart';
 import 'package:OrbOfQuarkus/providers/dungeon.dart';
 import 'package:OrbOfQuarkus/providers/game.dart';
 import 'package:OrbOfQuarkus/screens/main_screen.dart';
+import 'package:OrbOfQuarkus/screens/starting_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -20,14 +22,51 @@ class _FightScreenState extends State<FightScreen> {
   String _enemyStatus = 'monsterIdle1';
   String _heroStatus = "heroIdle";
   bool _visible = true;
-
+  List<Monster> _aliveMonsters = [];
   @override
   void initState() {
     super.initState();
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+
+    print("[PLAYER HEALTH]" +
+        Provider.of<CurrentGame>(context).currentGame.player.health.toString());
+
+    if (Provider.of<CurrentGame>(context).currentGame.player.health <= 0) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("GAME OVER"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text("Enemy killed you! Try Again!"),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pushNamed("/");
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -38,6 +77,7 @@ class _FightScreenState extends State<FightScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     super.dispose();
   }
 
@@ -59,9 +99,34 @@ class _FightScreenState extends State<FightScreen> {
   }
 
   void fightWithMonster(BuildContext context, int monsterId) async {
-    if (_monsterIndex ==
-        (Provider.of<CurrentDungeon>(context).currentDungeon.monsters.length -
-            1)) {
+    if (_monsterIndex == (_aliveMonsters.length - 1)) {
+      if (Provider.of<CurrentDungeon>(context).currentDungeon.id == 10) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("GOOD JOB YOU WON ORB OF QUARKUS"),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text("Thank you for playing"),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed("/");
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
       Provider.of<CurrentDungeon>(context).nextDungeon();
       setState(
           () => {_enemyStatus = "monsterAttack1", _heroStatus = "heroAttack"});
@@ -145,9 +210,20 @@ class _FightScreenState extends State<FightScreen> {
     Dungeon _currentDungeon =
         Provider.of<CurrentDungeon>(context).currentDungeon;
     Game _currentGame = Provider.of<CurrentGame>(context).currentGame;
+
+    _aliveMonsters = _currentDungeon.monsters
+        .where((element) => element.health >= 0.0)
+        .toList();
+
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 34, 43, 54),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.menu_open_rounded, color: Colors.orange),
+          onPressed: () {
+            Navigator.of(context).pushNamed(MainScreen.routeName);
+          },
+        ),
         iconTheme: IconThemeData(color: Colors.orange),
         title: Text(
           "Orb of Quarkus",
@@ -203,8 +279,8 @@ class _FightScreenState extends State<FightScreen> {
                       width: 300,
                       child: InkWell(
                         onTap: () {
-                          fightWithMonster(context,
-                              _currentDungeon.monsters[_monsterIndex].id);
+                          fightWithMonster(
+                              context, _aliveMonsters[_monsterIndex].id);
                           //toggleAnimations();
                         },
                         child: Image.asset(
